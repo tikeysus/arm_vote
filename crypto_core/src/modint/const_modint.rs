@@ -26,8 +26,23 @@ impl<const P: u64> ConstModInt<P>{
 		Self::new(result) 
 	}
 
+	pub fn pow(self, mut exponent: u64) -> Self{
+		if exponent == 0 { return Self::new(1) }
+		if exponent == 1 { return self }
+
+		let mut result = 1; 
+		let mut base = self.value % P; 
+		while (exponent > 0){
+			if (exponent & 1 == 1){
+				result = (result * base) % P; 
+			}
+			base = (base * base) % P; 
+			exponent >>= 1;
+		}
+		Self::new(result) 
+	}
+
 	pub fn print_modulus() {
 		println!("Modulus is {}", P);
 	}
-
 }
