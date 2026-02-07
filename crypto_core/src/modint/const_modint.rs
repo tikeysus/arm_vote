@@ -1,10 +1,15 @@
+use crate::errors::CryptoError; 
+
 pub struct ConstModInt<const P: u64>{
     value: u64,
 }
 
 impl<const P: u64> ConstModInt<P>{
-	pub fn new(x: u64) -> Self{
-		self { value: x % P }
+	pub fn new(x: u64) -> Result<Self, CryptoError>{
+		if P == 0 { 
+			return Err(CryptoError::ModulusIsZero); 
+		}
+		ok(Self { value: x % P }) 
 	}
 
 	pub fn value(self) -> u64{
