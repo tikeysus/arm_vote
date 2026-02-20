@@ -5,15 +5,27 @@ use crate::modint::const_modint::ConstModInt;
 Maybe I will need to implement an algo that is able to calculate something like 
 gcd(a,b,c) using gcd(a, gcd(b,c)). But I don't know if larger inputs are useful as of now. 
 
-Later, I should update gcd to use binary operators. 
 */
 pub fn gcd(a: u64, b: u64) -> u64{
-	if b == 0{
-		return a; 
-	} 
-	else{
-		return gcd(b, a % b); 
+	if a == 0 || b == 0{
+		return a | b; 
 	}
+	
+	let shift = (a|b).trailing_zeros(); 
+	a >>= a.trailing_zeros(); 
+
+	loop{ //this is such a crazy keyword in Rust, but I guess you could just do while true 
+		b >>= b.trailing_zeros(); 
+
+		if a > b{
+			std::mem::swap(&mut a, &mut b); 
+		}
+		b -= a; 
+
+		if b == 0{ break }
+	}
+
+	a << shift 
 }
 
 pub fn is_coprime(a: u64, b: u64) -> bool{
