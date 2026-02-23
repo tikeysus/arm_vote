@@ -1,7 +1,7 @@
-struct Vector<T> {
-    data: Vec<T>
-}
+// struct Vector<T> {
+//     data: Vec<T>
+// }
 
-impl<Vector<T>>{
-	unimplemented!(); 
-}
+// impl<Vector<T>>{
+// 	unimplemented!(); 
+// }
