@@ -1,20 +1,20 @@
-use crate::errors::CryptoError;
 
 //this function causes subtraction with overflow, gotta find out why. 
-pub fn egcd(a: u64, b: u64) -> Result<(i64, i64, i64), CryptoError>{
-	if b == 0{
-		return Ok((a, 1, 0)); 
-	}
+pub fn egcd(a: u64, b: u64) -> (i128, i128, i128){
+	if b == 0 {
+        return (a as i128, 1, 0);
+    }
 
-	let (d, x1, y1) = egcd(b, a % b); 
-	let x = y1; 
-	let y = x1 - y1 * ((a/b) as i64); 
+    let (d, x1, y1) = egcd(b, a % b); 
 
-	(d.try_into().unwrap(), x.try_into().unwrap(), y.try_into().unwrap())
+    let x = y1;
+    let y = x1 - y1 * ( (a / b) as i128 );
+
+    (d, x, y)
 }
 
-pub fn iterative_egcd(a: u64, b: u64) -> (u64, u64, u64){
-	unimplemented!(); 
+pub fn iterative_egcd(_a: u64, _b: u64) -> (u64, u64, u64){
+	todo!(); 
 }
 
 #[cfg(test)]

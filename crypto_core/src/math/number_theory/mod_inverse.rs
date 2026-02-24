@@ -1,16 +1,21 @@
 use crate::modint::const_modint::ConstModInt; 
 use crate::errors::CryptoError; 
 use crate::math::number_theory::egcd::egcd;
-use crate::math::number_theory::gcd::gcd; 
 
-pub fn modular_inverse<const P: u64>(a: ConstModInt<P>) -> Result<u64, CryptoError> {
-	let value = a.value; 
-    if gcd(value, P) != 1{
-		return Err(CryptoError::NoInverse); 
-	}
-     
-	let (_d, x, _y) = egcd(a.value(), P.into()); 
-	Ok((x as i64).try_into().unwrap())
+pub fn modular_inverse<const P: u64>(a: ConstModInt<P>) -> Result<ConstModInt<P>, CryptoError> {
+	let (d, x, _) = egcd(a.value(), P);
+    if d != 1 {
+        return Err(CryptoError::NoInverse);
+    }
+
+	//if x is negative, x % P will still be negative
+	let mut inv = x % ( P as i128 ); 
+		if inv < 0{
+			inv += P as i128;
+		}
+	let inv = inv as u64; 
+
+    ConstModInt::new(inv) 
 }
 
 #[cfg(test)]
@@ -23,7 +28,7 @@ mod tests {
 		let a = ConstModInt::<7>::new(3).unwrap();
 		let inv = modular_inverse(a).unwrap();
 		// 3 * 5 = 15 ≡ 1 (mod 7)
-		assert_eq!((3 * inv) % 7, 1);
+		assert_eq!((3 * inv.value()) % 7, 1);
 	}
 
 	#[test]
@@ -31,8 +36,8 @@ mod tests {
 		// Inverse of 1 is always 1
 		let a = ConstModInt::<11>::new(1).unwrap();
 		let inv = modular_inverse(a).unwrap();
-		assert_eq!(inv, 1);
-		assert_eq!((1 * inv) % 11, 1);
+		assert_eq!(inv.clone().value(), 1);
+		assert_eq!((1 * inv.clone().value()) % 11, 1);
 	}
 
 	#[test]
@@ -41,7 +46,7 @@ mod tests {
 		let a = ConstModInt::<101>::new(38).unwrap();
 		let inv = modular_inverse(a).unwrap();
 		// Verify a * inv ≡ 1 (mod 101)
-		assert_eq!((38 * inv) % 101, 1);
+		assert_eq!((38 * inv.value()) % 101, 1);
 	}
 
 	#[test]
@@ -50,7 +55,7 @@ mod tests {
 		let a = ConstModInt::<15>::new(2).unwrap();
 		let inv = modular_inverse(a).unwrap();
 		// 2 * 8 = 16 ≡ 1 (mod 15)
-		assert_eq!((2 * inv) % 15, 1);
+		assert_eq!((2 * inv.value()) % 15, 1);
 	}
 
 	#[test]
@@ -59,7 +64,7 @@ mod tests {
 		for i in 1..13 {
 			let a = ConstModInt::<13>::new(i).unwrap();
 			let inv = modular_inverse(a).unwrap();
-			assert_eq!((i * inv) % 13, 1, "Failed for i={}", i);
+			assert_eq!((i * inv.value()) % 13, 1, "Failed for i={}", i);
 		}
 	}
 
@@ -111,7 +116,7 @@ mod tests {
 		let a_pow = ConstModInt::<17>::new(5).unwrap().pow(15).unwrap();
 		
 		// Both should give same result (mod 17)
-		assert_eq!((5 * inv) % 17, 1);
+		assert_eq!((5 * inv.clone().value()) % 17, 1);
 		assert_eq!((5 * a_pow.value) % 17, 1);
 	}
 
@@ -120,8 +125,8 @@ mod tests {
 		// Test that inverse is symmetric: inv(inv(a)) = a
 		let a = ConstModInt::<11>::new(7).unwrap();
 		let inv1 = modular_inverse(a).unwrap();
-		let b = ConstModInt::<11>::new(inv1).unwrap();
+		let b = ConstModInt::<11>::new(inv1.clone().value).unwrap();
 		let inv2 = modular_inverse(b).unwrap();
-		assert_eq!(inv2 % 11, 7);
+		assert_eq!(inv2.clone().value() % 11, 7);
 	}
 }
