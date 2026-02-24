@@ -9,8 +9,8 @@ pub fn modular_inverse<const P: u64>(a: ConstModInt<P>) -> Result<u64, CryptoErr
 		return Err(CryptoError::NoInverse); 
 	}
      
-	let (_d, x, _y) = egcd(a.value.into(), P.into()); 
-	Ok(x) 
+	let (_d, x, _y) = egcd(a.value(), P.into()); 
+	Ok((x as i64).try_into().unwrap())
 }
 
 #[cfg(test)]

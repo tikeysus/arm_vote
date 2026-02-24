@@ -2,6 +2,7 @@
 pub enum CryptoError {
     ModulusIsZero,
     NoInverse,
+    Overflow,
 }
 
 use std::fmt;
@@ -10,6 +11,7 @@ impl fmt::Display for CryptoError {
         match self {
             CryptoError::ModulusIsZero => write!(f, "modulus P cannot be 0"),
             CryptoError::NoInverse => write!(f, "no modular inverse exists"),
+            CryptoError::Overflow => write!(f, "operation did not succeed, overflow resulted."),
         }
     }
 }
