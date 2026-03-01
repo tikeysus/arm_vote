@@ -1,13 +1,28 @@
-pub fn egcd(a: u64, b: u64) -> (u64, u64, u64){
-	if b == 0{
-		return (a, 1, 0); 
+pub fn recursive_egcd(a: u64, b: u64) -> (i128, i128, i128){
+	if b == 0 {
+        return (a as i128, 1, 0);
+    }
+
+    let (d, x1, y1) = recursive_egcd(b, a % b); 
+
+    let x = y1;
+    let y = x1 - y1 * ( (a / b) as i128 );
+
+    (d, x, y)
+}
+
+//will use this as iteration is faster than recursion
+pub fn egcd(a: u64, b: u64) -> (i128, i128, i128){
+	let (mut x, mut y) = (1, 0); 
+	let (mut x1, mut y1, mut a1, mut b1) = (0, 1, a as i128, b as i128); 
+	while b1 != 0{
+		let q = a1/b1; 
+		(x, x1) = (x1, x - q * x1);
+        (y, y1) = (y1, y - q * y1);
+        (a1, b1) = (b1, a1 - q * b1);
 	}
 
-	let (d, x1, y1) = egcd(b, a % b); 
-	let x = y1; 
-	let y = x1 - y1 * (a/b); 
-
-	(d, x, y)
+	(a1, x, y)
 }
 
 #[cfg(test)]

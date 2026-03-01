@@ -1,7 +1,8 @@
-struct Matrix<T> {
-    data: Vec<Vec<T>>
-}
 
-impl<Matrix<T>>{
-	unimplemented!(); 
-}
+// struct Matrix<T>{
+//     data: Vec<Vec<T>>;
+// }
+
+// impl<Matrix<T>>{
+// 	unimplemented!(); 
+// }
