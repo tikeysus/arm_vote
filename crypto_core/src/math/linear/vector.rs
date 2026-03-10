@@ -33,7 +33,18 @@ impl Vector {
     }
 
     pub fn dot_product(&self, other: &Self) -> Result<u64, CryptoError> {
-        todo!()
+        if self.data.len() != other.data.len() {
+            return Err(CryptoError::DifferingLengths);
+        }
+
+        self
+            .data
+            .iter()
+            .zip(other.data.iter())
+            .try_fold(0u64, |acc, (left, right)| {
+                let product = left.checked_mul(*right).ok_or(CryptoError::Overflow)?;
+                acc.checked_add(product).ok_or(CryptoError::Overflow)
+            })
     }
 
 }
@@ -84,5 +95,37 @@ mod tests {
         let result = left.vector_addition(right);
 
         assert_eq!(result, Err(CryptoError::DifferingLengths));
+    }
+
+    #[test]
+    fn dot_product_computes_sum_of_pairwise_products() {
+        let left = make_vector(vec![1, 2, 3]);
+        let right = make_vector(vec![4, 5, 6]);
+
+        let result = left
+            .dot_product(&right)
+            .expect("dot product should succeed");
+
+        assert_eq!(result, 32);
+    }
+
+    #[test]
+    fn dot_product_returns_differing_lengths_error() {
+        let left = make_vector(vec![1, 2, 3]);
+        let right = make_vector(vec![4, 5]);
+
+        let result = left.dot_product(&right);
+
+        assert_eq!(result, Err(CryptoError::DifferingLengths));
+    }
+
+    #[test]
+    fn dot_product_returns_overflow_error() {
+        let left = make_vector(vec![u64::MAX, 1]);
+        let right = make_vector(vec![2, 1]);
+
+        let result = left.dot_product(&right);
+
+        assert_eq!(result, Err(CryptoError::Overflow));
     }
 }
