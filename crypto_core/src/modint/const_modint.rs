@@ -1,6 +1,5 @@
 use crate::errors::CryptoError; 
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 
 pub struct ConstModInt<const P: u64>{
     pub value: u64,
