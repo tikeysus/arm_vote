@@ -3,7 +3,8 @@ pub enum CryptoError {
     ModulusIsZero,
     NoInverse,
     Overflow,
-    DifferingLengths, 
+    VectorDimensionMismatch,
+    MatrixDimensionMismatch.
 }
 
 use std::fmt;
@@ -13,7 +14,8 @@ impl fmt::Display for CryptoError {
             CryptoError::ModulusIsZero => write!(f, "modulus P cannot be 0"),
             CryptoError::NoInverse => write!(f, "no modular inverse exists"),
             CryptoError::Overflow => write!(f, "operation did not succeed, overflow resulted."),
-            CryptoError::DifferingLengths => write!(f, "the two matrices are of different lengths.  "),
+            CryptoError::VectorDimensionMismatch => write!(f, "the two vectors are of different lengths.  "),
+            CryptoError::MatrixDimensionMismatch => write!(f, "the two matrices are of different lengths.  "),
         }
     }
 }
