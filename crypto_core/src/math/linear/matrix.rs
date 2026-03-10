@@ -24,10 +24,7 @@ impl<const P: u64> Matrix<P> {
         }
     }
 
-    // ---------------------------
-    // MATRIX ADDITION
-    // ---------------------------
-    pub fn add(&self, other: &Self) -> Result<Self, CryptoError> {
+    pub fn matrix_addition(&self, other: &Self) -> Result<Self, CryptoError> {
         if self.rows() != other.rows() || self.cols() != other.cols() {
             return Err(CryptoError::MatrixDimensionMismatch);
         }
