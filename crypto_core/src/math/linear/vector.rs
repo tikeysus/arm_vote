@@ -7,7 +7,6 @@ pub struct Vector<const P: u64> {
 }
 
 impl<const P: u64> Vector<P> {
-
     pub fn new(data: Vec<ConstModInt<P>>) -> Self {
         Self { data }
     }
@@ -19,22 +18,20 @@ impl<const P: u64> Vector<P> {
     // ---------------------------
     // SCALAR MULTIPLICATION
     // ---------------------------
-    pub fn scalar_mul(&self, c: ConstModInt<P>) -> Self {
-
+    pub fn scalar_mul(&self, c: ConstModInt<P>) -> Result<Self, CryptoError> {
         let data = self
             .data
             .iter()
             .map(|x| x.mul(c))
-            .collect();
+            .collect::<Result<Vec<_>, CryptoError>>()?;
 
-        Self { data }
+        Ok(Self { data })
     }
 
     // ---------------------------
     // VECTOR ADDITION
     // ---------------------------
     pub fn add(&self, other: &Self) -> Result<Self, CryptoError> {
-
         if self.len() != other.len() {
             return Err(CryptoError::VectorDimensionMismatch);
         }
@@ -44,7 +41,7 @@ impl<const P: u64> Vector<P> {
             .iter()
             .zip(other.data.iter())
             .map(|(left, right)| left.add(*right))
-            .collect();
+            .collect::<Result<Vec<_>, CryptoError>>()?;
 
         Ok(Self { data })
     }
@@ -53,7 +50,6 @@ impl<const P: u64> Vector<P> {
     // DOT PRODUCT
     // ---------------------------
     pub fn dot(&self, other: &Self) -> Result<ConstModInt<P>, CryptoError> {
-
         if self.len() != other.len() {
             return Err(CryptoError::VectorDimensionMismatch);
         }
@@ -61,8 +57,8 @@ impl<const P: u64> Vector<P> {
         let mut sum = ConstModInt::<P>::new(0)?;
 
         for (a, b) in self.data.iter().zip(other.data.iter()) {
-            let product = a.mul(*b);
-            sum = sum.add(product);
+            let product = a.mul(*b)?;
+            sum = sum.add(product)?;
         }
 
         Ok(sum)
@@ -81,36 +77,33 @@ mod tests {
 
     #[test]
     fn scalar_mul_works() {
+        let v = make_vector(vec![2, 3, 4]);
 
-        let v = make_vector(vec![2,3,4]);
-
-        let result = v.scalar_mul(F::new(3).unwrap());
+        let result = v.scalar_mul(F::new(3).unwrap()).unwrap();
 
         assert_eq!(
             result.data.iter().map(|x| x.value()).collect::<Vec<_>>(),
-            vec![6,9,12]
+            vec![6, 9, 12]
         );
     }
 
     #[test]
     fn vector_addition_works() {
-
-        let a = make_vector(vec![1,2,3]);
-        let b = make_vector(vec![10,20,30]);
+        let a = make_vector(vec![1, 2, 3]);
+        let b = make_vector(vec![10, 20, 30]);
 
         let result = a.add(&b).unwrap();
 
         assert_eq!(
             result.data.iter().map(|x| x.value()).collect::<Vec<_>>(),
-            vec![11,22,33]
+            vec![11, 9, 7]
         );
     }
 
     #[test]
     fn dot_product_works() {
-
-        let a = make_vector(vec![1,2,3]);
-        let b = make_vector(vec![4,5,6]);
+        let a = make_vector(vec![1, 2, 3]);
+        let b = make_vector(vec![4, 5, 6]);
 
         let result = a.dot(&b).unwrap();
 
@@ -119,9 +112,8 @@ mod tests {
 
     #[test]
     fn dimension_mismatch() {
-
-        let a = make_vector(vec![1,2,3]);
-        let b = make_vector(vec![4,5]);
+        let a = make_vector(vec![1, 2, 3]);
+        let b = make_vector(vec![4, 5]);
 
         assert_eq!(a.add(&b), Err(CryptoError::VectorDimensionMismatch));
     }
